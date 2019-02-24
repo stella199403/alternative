@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+	<h1>Data Classifier</h1>
+
+	<form method="POST" action="upload" enctype="multipart/form-data"
+		th:switch="${type}">
+		<input type="file" name="file"><br> <br> <input
+			type="submit" value="Submit"> <br> <br> <label>Classification</label>
+		<select style="margin-left: 20px;" class="cls_selectClassification"
+			th:case="'highconfidential'">
+			<option value="default">Default</option>
+			<option value="highconfidential" selected="">High Confidential</option>
+			<option value="confidential">Confidential</option>
+		</select> <select style="margin-left: 20px;" class="cls_selectClassification"
+			th:case="'confidential'">
+			<option value="default">Default</option>
+			<option value="highconfidential">High Confidential</option>
+			<option value="confidential" selected="">Confidential</option>
+		</select> <select style="margin-left: 20px;" class="cls_selectClassification"
+			th:case="'encryptdata'">
+			<option value="default">Default</option>
+			<option value="highconfidential" selected="">High Confidential</option>
+			<option value="confidential">Confidential</option>
+		</select> <select style="margin-left: 20px;" class="cls_selectClassification"
+			th:case="*">
+			<option value="default" selected="">Default</option>
+			<option value="highconfidential">High Confidential</option>
+			<option value="confidential">Confidential</option>
+		</select> <br> <br> <input type="submit" class="cls_encryptData"
+			value="Encrypt Data"> <br>
+	</form>
+
+	<div th:if="${message}">
+		<h1>Upload Status</h1>
+		<h2 th:text="${message}" />
+		<table border="1">
+			<thead>
+				<tr>
+					<th th:each="columnmap:${columnmaps}" th:text="${columnmap}"></th>
+				</tr>
+			</thead>
+			<tbody th:switch="${type}" th:each="dataset:${datasets}">
+				<tr th:case="'highconfidential'">
+					<td th:text="${dataset.employeeid}"></td>
+					<td th:text="${dataset.firstname}"></td>
+					<td th:text="${dataset.lastname}"></td>
+					<td th:text="${dataset.email}"></td>
+					<td th:text="${dataset.dob}"></td>
+					<td th:text="${dataset.tob}"></td>
+					<td th:text="${dataset.ageinyears}"></td>
+					<td th:text="${dataset.dateofjoining}"></td>
+					<td th:text="${dataset.yearofjoining}"></td>
+					<td th:text="${dataset.shortmonth}"></td>
+					<td th:text="${dataset.ageincompany}"></td>
+					<td th:text="${dataset.salary}"></td>
+					<td th:text="${dataset.lastpercentagehike}"></td>
+					<td th:text="${dataset.ssn}"></td>
+					<td th:text="${dataset.phone}"></td>
+					<td th:text="${dataset.username}"></td>
+					<td th:text="${dataset.password}"></td>
+				</tr>
+				<tr th:case="'encryptdata'">
+					<td th:text="${dataset.employeeid}"></td>
+					<td th:text="${dataset.firstname}"></td>
+					<td th:text="${dataset.lastname}"></td>
+					<td th:text="${dataset.email}"></td>
+					<td th:text="${dataset.dob}"></td>
+					<td th:text="${dataset.tob}"></td>
+					<td th:text="${dataset.ageinyears}"></td>
+					<td th:text="${dataset.dateofjoining}"></td>
+					<td th:text="${dataset.yearofjoining}"></td>
+					<td th:text="${dataset.shortmonth}"></td>
+					<td th:text="${dataset.ageincompany}"></td>
+					<td th:text="${dataset.salary}"></td>
+					<td th:text="${dataset.lastpercentagehike}"></td>
+					<td th:text="${dataset.ssn}"></td>
+					<td th:text="${dataset.phone}"></td>
+					<td th:text="${dataset.username}"></td>
+					<td th:text="${dataset.password}"></td>
+				</tr>
+				<tr th:case="'confidential'">
+					<td th:text="${dataset.nameprefix}"></td>
+					<td th:text="${dataset.middleinitial}"></td>
+					<td th:text="${dataset.gender}"></td>
+					<td th:text="${dataset.fathername}"></td>
+					<td th:text="${dataset.mothername}"></td>
+					<td th:text="${dataset.mothermaidenname}"></td>
+					<td th:text="${dataset.weightinkgs}"></td>
+					<td th:text="${dataset.quarterofjoining}"></td>
+					<td th:text="${dataset.halfofjoining}"></td>
+					<td th:text="${dataset.monthofjoining}"></td>
+					<td th:text="${dataset.monthnameofjoining}"></td>
+					<td th:text="${dataset.dayofjoining}"></td>
+					<td th:text="${dataset.dowofjoining}"></td>
+					<td th:text="${dataset.shortdow}"></td>
+					<td th:text="${dataset.placename}"></td>
+					<td th:text="${dataset.county}"></td>
+					<td th:text="${dataset.city}"></td>
+					<td th:text="${dataset.state}"></td>
+					<td th:text="${dataset.zip}"></td>
+					<td th:text="${dataset.region}"></td>
+				</tr>
+				<tr th:case="*">
+					<td th:text="${dataset.employeeid}"></td>
+					<td th:text="${dataset.nameprefix}"></td>
+					<td th:text="${dataset.firstname}"></td>
+					<td th:text="${dataset.middleinitial}"></td>
+					<td th:text="${dataset.lastname}"></td>
+					<td th:text="${dataset.gender}"></td>
+					<td th:text="${dataset.email}"></td>
+					<td th:text="${dataset.fathername}"></td>
+					<td th:text="${dataset.mothername}"></td>
+					<td th:text="${dataset.mothermaidenname}"></td>
+					<td th:text="${dataset.dob}"></td>
+					<td th:text="${dataset.tob}"></td>
+					<td th:text="${dataset.ageinyears}"></td>
+					<td th:text="${dataset.weightinkgs}"></td>
+					<td th:text="${dataset.dateofjoining}"></td>
+					<td th:text="${dataset.quarterofjoining}"></td>
+					<td th:text="${dataset.halfofjoining}"></td>
+					<td th:text="${dataset.yearofjoining}"></td>
+					<td th:text="${dataset.monthofjoining}"></td>
+					<td th:text="${dataset.monthnameofjoining}"></td>
+					<td th:text="${dataset.shortmonth}"></td>
+					<td th:text="${dataset.dayofjoining}"></td>
+					<td th:text="${dataset.dowofjoining}"></td>
+					<td th:text="${dataset.shortdow}"></td>
+					<td th:text="${dataset.ageincompany}"></td>
+					<td th:text="${dataset.salary}"></td>
+					<td th:text="${dataset.lastpercentagehike}"></td>
+					<td th:text="${dataset.ssn}"></td>
+					<td th:text="${dataset.phone}"></td>
+					<td th:text="${dataset.placename}"></td>
+					<td th:text="${dataset.county}"></td>
+					<td th:text="${dataset.city}"></td>
+					<td th:text="${dataset.state}"></td>
+					<td th:text="${dataset.zip}"></td>
+					<td th:text="${dataset.region}"></td>
+					<td th:text="${dataset.username}"></td>
+					<td th:text="${dataset.password}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<script th:src=@{/js/jquery-3.3.1.min.js} type="text/javascript"></script>
+	<script>
+		$(".cls_selectClassification").off("change").on("change",
+				function(event) {
+					window.location.href = event.currentTarget.value;
+				});
+		
+		$(".cls_encryptData").off("click").on("click", 
+				function(){
+			window.location.href = "encryptdata";
+			return false;
+		});
+	</script>
+</body>
+</html>
