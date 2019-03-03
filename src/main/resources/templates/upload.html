@@ -7,8 +7,12 @@
 	<form method="POST" action="upload" enctype="multipart/form-data"
 		th:switch="${type}">
 		<input type="file" name="file"><br> <br> <input
-			type="submit" value="Submit"> <br> <br> <label>Classification</label>
-		<select style="margin-left: 20px;" class="cls_selectClassification"
+			type="submit" value="Submit">
+		<button class="sk_clsDownload" th:if="${downloadurl}">
+			<a th:href="${downloadurl}">Download</a>
+		</button>
+		<br> <br> <label>Classification</label> <select
+			style="margin-left: 20px;" class="cls_selectClassification"
 			th:case="'highconfidential'">
 			<option value="default">Default</option>
 			<option value="highconfidential" selected="">High Confidential</option>
@@ -24,12 +28,20 @@
 			<option value="highconfidential" selected="">High Confidential</option>
 			<option value="confidential">Confidential</option>
 		</select> <select style="margin-left: 20px;" class="cls_selectClassification"
+			th:case="'encryptconfidentialdata'">
+			<option value="default">Default</option>
+			<option value="highconfidential">High Confidential</option>
+			<option value="confidential" selected="">Confidential</option>
+		</select> <select style="margin-left: 20px;" class="cls_selectClassification"
 			th:case="*">
 			<option value="default" selected="">Default</option>
 			<option value="highconfidential">High Confidential</option>
 			<option value="confidential">Confidential</option>
-		</select> <br> <br> <input type="submit" class="cls_encryptData"
-			value="Encrypt Data"> <br>
+		</select> <br> <br> <input type="submit"
+			class="cls_highConfidentialencryptData"
+			value="High Confidential Encrypt Data"> <br> <br> <input
+			type="submit" class="cls_confidentialeEncryptData"
+			value="Confidential Encrypt Data"> <br>
 	</form>
 
 	<div th:if="${message}">
@@ -102,6 +114,28 @@
 					<td th:text="${dataset.zip}"></td>
 					<td th:text="${dataset.region}"></td>
 				</tr>
+				<tr th:case="'encryptconfidentialdata'">
+					<td th:text="${dataset.nameprefix}"></td>
+					<td th:text="${dataset.middleinitial}"></td>
+					<td th:text="${dataset.gender}"></td>
+					<td th:text="${dataset.fathername}"></td>
+					<td th:text="${dataset.mothername}"></td>
+					<td th:text="${dataset.mothermaidenname}"></td>
+					<td th:text="${dataset.weightinkgs}"></td>
+					<td th:text="${dataset.quarterofjoining}"></td>
+					<td th:text="${dataset.halfofjoining}"></td>
+					<td th:text="${dataset.monthofjoining}"></td>
+					<td th:text="${dataset.monthnameofjoining}"></td>
+					<td th:text="${dataset.dayofjoining}"></td>
+					<td th:text="${dataset.dowofjoining}"></td>
+					<td th:text="${dataset.shortdow}"></td>
+					<td th:text="${dataset.placename}"></td>
+					<td th:text="${dataset.county}"></td>
+					<td th:text="${dataset.city}"></td>
+					<td th:text="${dataset.state}"></td>
+					<td th:text="${dataset.zip}"></td>
+					<td th:text="${dataset.region}"></td>
+				</tr>
 				<tr th:case="*">
 					<td th:text="${dataset.employeeid}"></td>
 					<td th:text="${dataset.nameprefix}"></td>
@@ -150,10 +184,15 @@
 				function(event) {
 					window.location.href = event.currentTarget.value;
 				});
-		
-		$(".cls_encryptData").off("click").on("click", 
-				function(){
-			window.location.href = "encryptdata";
+
+		$(".cls_highConfidentialencryptData").off("click").on("click",
+				function() {
+					window.location.href = "encryptdata";
+					return false;
+				});
+
+		$(".cls_confidentialeEncryptData").off("click").on("click", function() {
+			window.location.href = "encryptconfidentialdata";
 			return false;
 		});
 	</script>

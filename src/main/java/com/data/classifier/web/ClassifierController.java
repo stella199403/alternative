@@ -6,6 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,7 +37,7 @@ public class ClassifierController
     {
         return "Classifier is pinging -" + System.currentTimeMillis();
     }
-    
+
     @GetMapping("/verifydata/{input}")
     public @ResponseBody String verifydata(@PathVariable("input") String input)
     {
@@ -42,7 +45,10 @@ public class ClassifierController
     }
 
     @GetMapping("/{type}")
-    public String index(@PathVariable("type") String type, Model model)
+    public String index(@PathVariable("type") String type,
+                        Model model,
+                        HttpServletRequest request,
+                        HttpServletResponse response)
     {
         model.addAttribute("columnmaps", Utility.getDefaultColumns());
         List<Defaultdata> defaultDataList = Utility.getDefaultData();
@@ -59,26 +65,37 @@ public class ClassifierController
             model.addAttribute("columnmaps", Utility.getConfidentialColumns());
             model.addAttribute("datasets", Utility.getConfidentialData());
         }
-        else if(type.equals("encryptdata") && defaultDataList.size() > 0)
+        else if (type.equals("encryptdata") && defaultDataList.size() > 0)
         {
             model.addAttribute("message", "High Confidential Encrypted Data");
             model.addAttribute("columnmaps", Utility.getHighConfidentialColumns());
             model.addAttribute("datasets", Utility.getHighConfidentialEncryptedData());
         }
-        else if(defaultDataList.size() > 0)
+        else if (type.equals("encryptconfidentialdata") && defaultDataList.size() > 0)
+        {
+            model.addAttribute("message", "Confidential Encrypted Data");
+            model.addAttribute("columnmaps", Utility.getConfidentialColumns());
+            model.addAttribute("datasets", Utility.getConfidentialEncryptedData());
+        }
+        else if (defaultDataList.size() > 0)
         {
             model.addAttribute("message", "Default data");
         }
+        model.addAttribute("downloadurl", Utility.downloadUrl);
         model.addAttribute("type", type);
         return "upload";
     }
 
     @PostMapping("/upload") // //new annotation since 4.3
     public String singleFileUpload(@RequestParam("file") MultipartFile file,
-                                   Model model)
+                                   Model model,
+                                   HttpServletRequest request,
+                                   HttpServletResponse response)
     {
         //Save the uploaded file to this folder
-        String UPLOADED_FOLDER = "D://temp//";
+
+        String UPLOADED_FOLDER = "D:\\Eclipse\\Workspace\\Dataclassifier\\src\\main\\resources\\static\\upload\\";
+        String downloadfolder = "/upload/";
 
         if (file.isEmpty())
         {
@@ -99,6 +116,8 @@ public class ClassifierController
             model.addAttribute("message", "You successfully uploaded '" + file.getOriginalFilename() + "'");
             model.addAttribute("columnmaps", Utility.getDefaultColumns());
             model.addAttribute("datasets", Utility.getDefaultData());
+            Utility.downloadUrl = downloadfolder + file.getOriginalFilename();
+            model.addAttribute("downloadurl", Utility.downloadUrl);
         }
         catch (IOException e)
         {

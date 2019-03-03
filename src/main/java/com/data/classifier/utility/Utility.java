@@ -16,6 +16,9 @@ import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -28,8 +31,10 @@ import com.data.classifier.model.Highconfidential;
 
 public class Utility
 {
-    private static Cipher cipher;
-    private static SecretKey secretKey;
+    private static Cipher blowfishcipher;
+    private static Cipher aescipher;
+    private static SecretKey blowfishsecretKey;
+    private static SecretKey aesSecretKey;
     private static String[] columns = { "Emp ID", "Name Prefix", "First Name", "Middle Initial", "Last Name", "Gender", "E Mail", "Father's Name", "Mother's Name", "Mother's Maiden Name", "Date of Birth", "Time of Birth", "Age in Yrs.", "Weight in Kgs.", "Date of Joining", "Quarter of Joining", "Half of Joining", "Year of Joining", "Month of Joining", "Month Name of Joining", "Short Month", "Day of Joining", "DOW of Joining", "Short DOW", "Age in Company (Years)", "Salary", "Last % Hike", "SSN", "Phone No.", "Place Name", "County", "City", "State", "Zip", "Region", "User Name", "Password" };
     private static HashMap<String, String> columnmap = new HashMap<String, String>();
     private static HashMap<String, String> datamap = new HashMap<String, String>();
@@ -39,7 +44,9 @@ public class Utility
     public static List<Highconfidential> highconfidentials = new ArrayList<Highconfidential>();
     public static List<Highconfidential> highconfidentialsEncryptData = new ArrayList<Highconfidential>();
     public static List<Confidential> confidentials = new ArrayList<Confidential>();
+    public static List<Confidential> confidentialsEncryptData = new ArrayList<Confidential>();
     public static List<Defaultdata> defaultdatas = new ArrayList<Defaultdata>();
+    public static String downloadUrl = "";
     static
     {
         columnmap.put("Emp ID", "EmployeeId");
@@ -176,6 +183,8 @@ public class Utility
                 Highconfidential highconfidential = new Highconfidential();
                 Highconfidential highconfidentialEncryptData = new Highconfidential();
                 Confidential confidential = new Confidential();
+                Confidential confidentialEncryptData = new Confidential();
+
                 Defaultdata defaultdata = new Defaultdata();
                 for (int index = 0; index < columns.length; index++)
                 {
@@ -193,10 +202,10 @@ public class Utility
                         Map<String, String> properties = BeanUtils.describe(highconfidential);
                         properties.put(propertymap.get(columnName), csvRecord.get(index));
                         BeanUtils.populate(highconfidential, properties);
-                        
-                     // high confidential encrypted
+
+                        // high confidential encrypted
                         Map<String, String> propertiesEncrypted = BeanUtils.describe(highconfidentialEncryptData);
-                        propertiesEncrypted.put(propertymap.get(columnName), encrypt(csvRecord.get(index)));
+                        propertiesEncrypted.put(propertymap.get(columnName), aesencrypt(csvRecord.get(index)));
                         BeanUtils.populate(highconfidentialEncryptData, propertiesEncrypted);
 
                     }
@@ -205,6 +214,11 @@ public class Utility
                         Map<String, String> properties = BeanUtils.describe(confidential);
                         properties.put(propertymap.get(columnName), csvRecord.get(index));
                         BeanUtils.populate(confidential, properties);
+
+                        // confidential encrypted
+                        Map<String, String> propertiesEncrypted = BeanUtils.describe(confidentialEncryptData);
+                        propertiesEncrypted.put(propertymap.get(columnName), blowfishencrypt(csvRecord.get(index)));
+                        BeanUtils.populate(confidentialEncryptData, propertiesEncrypted);
                     }
                     Map<String, String> properties = BeanUtils.describe(defaultdata);
                     properties.put(propertymap.get(columnName), csvRecord.get(index));
@@ -212,6 +226,7 @@ public class Utility
                 }
                 highconfidentials.add(highconfidential);
                 highconfidentialsEncryptData.add(highconfidentialEncryptData);
+                confidentialsEncryptData.add(confidentialEncryptData);
                 confidentials.add(confidential);
                 defaultdatas.add(defaultdata);
             }
@@ -237,14 +252,14 @@ public class Utility
         }
     }
 
-    private static void init()
+    private static void blowfishinit()
     {
         try
         {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
             keyGenerator.init(128);
-            secretKey = keyGenerator.generateKey();
-            cipher = Cipher.getInstance("AES");
+            blowfishsecretKey = keyGenerator.generateKey();
+            blowfishcipher = Cipher.getInstance("Blowfish");
         }
         catch (Exception ex)
         {
@@ -252,12 +267,38 @@ public class Utility
         }
     }
 
-    public static String encrypt(String plainText) throws Exception
+    private static void aesinit()
     {
-        init();
+        try
+        {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128);
+            aesSecretKey = keyGenerator.generateKey();
+            aescipher = Cipher.getInstance("AES");
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    public static String blowfishencrypt(String plainText) throws Exception
+    {
+        blowfishinit();
         byte[] plainTextByte = plainText.getBytes();
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        byte[] encryptedByte = cipher.doFinal(plainTextByte);
+        blowfishcipher.init(Cipher.ENCRYPT_MODE, blowfishsecretKey);
+        byte[] encryptedByte = blowfishcipher.doFinal(plainTextByte);
+        Base64.Encoder encoder = Base64.getEncoder();
+        String encryptedText = encoder.encodeToString(encryptedByte);
+        return encryptedText;
+    }
+
+    public static String aesencrypt(String plainText) throws Exception
+    {
+        aesinit();
+        byte[] plainTextByte = plainText.getBytes();
+        aescipher.init(Cipher.ENCRYPT_MODE, aesSecretKey);
+        byte[] encryptedByte = aescipher.doFinal(plainTextByte);
         Base64.Encoder encoder = Base64.getEncoder();
         String encryptedText = encoder.encodeToString(encryptedByte);
         return encryptedText;
@@ -381,8 +422,11 @@ public class Utility
 
     public static List<Highconfidential> getHighConfidentialEncryptedData()
     {
-        // TODO Auto-generated method stub
         return highconfidentialsEncryptData;
     }
 
+    public static List<Confidential> getConfidentialEncryptedData()
+    {
+        return confidentialsEncryptData;
+    }
 }
